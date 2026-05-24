@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Win Soles — Buy & Sell Authentic Deadstock Sneakers</title>
+    <meta name="description" content="The trusted marketplace for 100% verified deadstock sneakers." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['"Inter Tight"', 'system-ui', 'sans-serif'] },
+            colors: {
+              ink: '#0f0f0f',
+              bid: '#e0552b',
+              ask: '#4a9d5f',
+              up: '#3f8a52',
+              down: '#d04a26',
+              line: '#e7e7e7',
+              soft: '#f5f5f5',
+              muted: '#737373',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body>
+
+<!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50">
+      <div class="bg-white border-b border-line">
+        <div class="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
+          <a href="#" data-nav="home" class="text-2xl font-black tracking-tight shrink-0">
+            WIN<span class="text-bid">SOLES</span>
+          </a>
+          <div class="flex-1 max-w-2xl hidden md:block">
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="search-input" placeholder="Search for brand, color, or sku" class="w-full bg-soft border border-transparent focus:border-ink focus:bg-white outline-none pl-10 pr-4 h-10 rounded-md text-sm transition" />
+            </div>
+          </div>
+          <nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
+            <a href="#" data-nav="browse" class="hover:text-bid">Browse</a>
+            <a href="#" class="hover:text-bid">News</a>
+            <a href="#" data-nav="about" class="hover:text-bid">About Us</a>
+          </nav>
+          <div class="hidden md:flex items-center gap-2">
+            <a href="#" data-nav="sell" class="h-9 px-4 inline-flex items-center rounded-md border border-ink text-sm font-semibold hover:bg-ink hover:text-white transition">Sell</a>
+            <a id="nav-login" href="#" data-nav="login" class="h-9 px-4 inline-flex items-center text-sm font-medium hover:text-bid">Login</a>
+            <a id="nav-signup" href="#" data-nav="signup" class="h-9 px-4 inline-flex items-center rounded-md bg-ink text-white text-sm font-semibold hover:opacity-90">Sign Up</a>
+          </div>
+          <button id="burger" class="md:hidden p-2" aria-label="Menu">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+        </div>
+          <div id="mobile-menu" class="hide md:hidden border-t border-line px-4 py-4 space-y-3 bg-white">
+          <div class="relative">
+            <input id="mobile-search" placeholder="Search…" class="w-full bg-soft outline-none px-3 h-10 rounded-md text-sm" />
+          </div>
+          <a href="#" data-nav="browse" class="block py-1">Browse</a>
+          <a href="#" class="block py-1">News</a>
+          <a href="#" data-nav="about" class="block py-1">About Us</a>
+          <div class="flex gap-2 pt-2">
+            <a href="#" data-nav="sell" class="flex-1 h-9 inline-flex items-center justify-center rounded-md border border-ink text-sm font-semibold">Sell</a>
+            <a id="nav-login-mobile" href="#" data-nav="login" class="flex-1 h-9 inline-flex items-center justify-center text-sm font-medium border border-line rounded-md">Login</a>
+            <a id="nav-signup-mobile" href="#" data-nav="signup" class="flex-1 h-9 inline-flex items-center justify-center rounded-md bg-ink text-white text-sm font-semibold">Sign Up</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="app"></main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer id="footer" class="border-t border-line mt-20">
+      <div class="mx-auto max-w-7xl px-4 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+        <div>
+          <div class="text-lg font-black mb-3">WIN<span class="text-bid">SOLES</span></div>
+          <p class="text-muted">The trusted marketplace for authentic deadstock sneakers.</p>
+        </div>
+        <div><div class="font-semibold mb-3">Marketplace</div><ul class="space-y-2 text-muted"><li>Browse</li><li>Sell</li><li>Drops</li><li>News</li></ul></div>
+        <div><div class="font-semibold mb-3">Company</div><ul class="space-y-2 text-muted"><li>About Us</li><li>Careers</li><li>Press</li><li>Contact</li></ul></div>
+        <div><div class="font-semibold mb-3">Help</div><ul class="space-y-2 text-muted"><li>How it works</li><li>Authenticity</li><li>Shipping</li><li>Returns</li></ul></div>
+      </div>
+      <div class="border-t border-line py-4 text-center text-xs text-muted">© 2026 Win Soles. All rights reserved.</div>
+    </footer>
+
+
+    <!-- Scripts in order of dependency -->
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/views.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/checkout.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
+
