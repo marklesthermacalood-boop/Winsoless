@@ -112,10 +112,12 @@ views.about = () => `
         </div>
       </div>
       <div class="space-y-4">
-        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-amber-100 to-white border border-line p-6 flex items-center justify-center">
-          <div class="text-center">
-            <div class="text-2xl font-black">10K+</div>
-            <div class="text-sm text-muted">Active Listings</div>
+        <div class="relative aspect-[4/3] rounded-2xl overflow-hidden border border-line">
+          <img src="posters/AboutUsPoster.jpg" alt="Win Soles poster" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-black/30"></div>
+          <div class="absolute left-6 bottom-6 text-white">
+            <div class="text-5xl font-black leading-none">10K+</div>
+            <div class="text-sm uppercase tracking-widest">Active Listings</div>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-3">
