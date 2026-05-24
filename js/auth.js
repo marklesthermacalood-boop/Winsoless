@@ -24,6 +24,7 @@ const USER_DATABASE = {
 
 // Current logged-in user stored in session
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+const USER_LISTINGS = JSON.parse(localStorage.getItem('userListings') || '{}');
 
 /**
  * Sign up a new user
@@ -131,6 +132,33 @@ function isLoggedIn() {
  */
 function getCurrentUser() {
   return currentUser;
+}
+
+function createListing({ sellerEmail, title, sku, size, ask }) {
+  const id = `listing-${Date.now()}`;
+  const listing = {
+    id,
+    sellerEmail: sellerEmail.toLowerCase(),
+    title,
+    sku,
+    size,
+    ask: Number(ask),
+    status: 'Pending',
+    createdAt: new Date().toISOString(),
+  };
+
+  const emailKey = sellerEmail.toLowerCase();
+  if (!Array.isArray(USER_LISTINGS[emailKey])) {
+    USER_LISTINGS[emailKey] = [];
+  }
+  USER_LISTINGS[emailKey].push(listing);
+  localStorage.setItem('userListings', JSON.stringify(USER_LISTINGS));
+  return listing;
+}
+
+function getUserListings(email) {
+  if (!email) return [];
+  return USER_LISTINGS[email.toLowerCase()] || [];
 }
 
 /**

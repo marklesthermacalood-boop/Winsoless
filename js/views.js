@@ -387,28 +387,82 @@ views.account = () => {
 
 
 // Sell view
-views.sell = () => `
-  <div class="mx-auto max-w-4xl w-full px-4 py-16 text-center">
-    <div class="inline-flex items-center gap-2 text-[11px] font-semibold tracking-widest text-bid uppercase mb-4">
-      <span class="w-8 h-px bg-bid"></span> For Sellers
-    </div>
-    <h1 class="text-4xl md:text-5xl font-black">Turn your collection into cash.</h1>
-    <p class="mt-4 text-muted max-w-xl mx-auto">List your deadstock pairs in minutes. We handle authentication, payments, and shipping logistics.</p>
-    <div class="mt-8 flex flex-wrap justify-center gap-3">
-      <a href="#" data-nav="signup" class="h-12 px-7 inline-flex items-center rounded-md bg-ink text-white font-semibold">Create Seller Account</a>
-      <a href="#" data-nav="browse" class="h-12 px-7 inline-flex items-center rounded-md border border-ink font-semibold">Check Market Prices</a>
-    </div>
-    <div class="mt-16 grid md:grid-cols-3 gap-4 text-left">
-      ${[['1', 'List', 'Search the catalog, set an Ask, or accept the highest Bid.'], ['2', 'Ship', 'Send your pair to our authenticators within 2 business days.'], ['3', 'Get Paid', 'Funds release as soon as the sneaker passes verification.']].map(([n, t, d]) => `
-        <div class="border border-line rounded-md p-6">
-          <div class="text-bid font-black text-3xl">${n}</div>
-          <div class="font-bold mt-2">${t}</div>
-          <p class="text-sm text-muted mt-1">${d}</p>
-        </div>`).join('')}
-    </div>
-  </div>
-`;
+views.sell = () => {
+  const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  const isLoggedIn = Boolean(user);
+  const pendingCount = isLoggedIn && typeof getUserListings === 'function' ? getUserListings(user.email).filter((item) => item.status === 'Pending').length : 0;
 
+  if (!isLoggedIn) {
+    return `
+      <div class="mx-auto max-w-4xl w-full px-4 py-16 text-center">
+        <div class="inline-flex items-center gap-2 text-[11px] font-semibold tracking-widest text-bid uppercase mb-4">
+          <span class="w-8 h-px bg-bid"></span> Ready to Sell
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black">List your sneakers in minutes.</h1>
+        <p class="mt-4 text-muted max-w-xl mx-auto">Login or create an account to submit a new listing and get your pair pending review.</p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+          <a href="#" data-nav="login" class="h-12 px-7 inline-flex items-center rounded-md bg-ink text-white font-semibold">Login</a>
+          <a href="#" data-nav="signup" class="h-12 px-7 inline-flex items-center rounded-md border border-ink font-semibold">Sign Up</a>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="mx-auto max-w-4xl w-full px-4 py-16">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 text-[11px] font-semibold tracking-widest text-bid uppercase mb-4">
+          <span class="w-8 h-px bg-bid"></span> Seller Listing
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black">Create your listing</h1>
+        <p class="mt-4 text-muted max-w-2xl mx-auto">Submit your pair, set an ask price, and we’ll mark it as pending review.</p>
+        <div class="mt-4 text-sm text-muted">You have <strong>${pendingCount}</strong> pending listing${pendingCount === 1 ? '' : 's'}.</div>
+      </div>
+      <form id="sell-form" class="grid gap-6">
+        <div class="grid md:grid-cols-2 gap-4">
+          <label class="block">
+            <div class="text-sm font-semibold text-ink">Shoe Title</div>
+            <input name="title" required placeholder="Air Jordan 1 Chicago" class="mt-2 w-full h-12 rounded-md border border-line px-3" />
+          </label>
+          <label class="block">
+            <div class="text-sm font-semibold text-ink">Size</div>
+            <input name="size" required placeholder="10" class="mt-2 w-full h-12 rounded-md border border-line px-3" />
+          </label>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <label class="block">
+            <div class="text-sm font-semibold text-ink">SKU (optional)</div>
+            <input name="sku" placeholder="AJ1-555088-101" class="mt-2 w-full h-12 rounded-md border border-line px-3" />
+          </label>
+          <label class="block">
+            <div class="text-sm font-semibold text-ink">Ask Price</div>
+            <input name="ask" required type="number" min="0" placeholder="6995" class="mt-2 w-full h-12 rounded-md border border-line px-3" />
+          </label>
+        </div>
+
+        <label class="block">
+          <div class="text-sm font-semibold text-ink">Notes</div>
+          <textarea name="notes" rows="4" placeholder="Condition, packaging, authenticity notes" class="mt-2 w-full rounded-md border border-line px-3 py-3"></textarea>
+        </label>
+
+        <div id="sell-error" class="hide text-sm text-red-600"></div>
+        <button type="submit" class="h-12 rounded-md bg-ink text-white font-semibold">Submit Listing</button>
+      </form>
+    </div>`;
+};
+
+
+views['listing-success'] = (params = {}) => `
+  <div class="mx-auto max-w-3xl px-4 py-20 text-center">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-ask text-white text-2xl font-bold mx-auto">✓</div>
+    <h1 class="text-3xl font-black mt-6">Listing in process</h1>
+    <p class="mt-4 text-muted max-w-xl mx-auto">${params.title ? `Your listing for <strong>${params.title}</strong> is now pending review.` : 'Your listing is now pending review.'}</p>
+    <p class="mt-2 text-sm text-muted">We’ll notify you once it is approved and live on the marketplace.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="#" data-nav="sell" class="h-12 px-6 inline-flex items-center rounded-md bg-ink text-white font-semibold">List another shoe</a>
+      <a href="#" data-nav="account" class="h-12 px-6 inline-flex items-center rounded-md border border-ink font-semibold">View Account</a>
+    </div>
+  </div>`;
 
 
 // Checkout view

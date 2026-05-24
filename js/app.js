@@ -123,6 +123,44 @@ function navigate(view, params = {}) {
     };
   }
 
+  // Setup sell view
+  if (view === 'sell') {
+    const form = $('#sell-form');
+    const errorBox = $('#sell-error');
+    if (form) {
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        if (!isLoggedIn()) {
+          navigate('login');
+          return;
+        }
+
+        const title = (form.querySelector('[name="title"]') || {}).value.trim();
+        const sku = (form.querySelector('[name="sku"]') || {}).value.trim();
+        const size = (form.querySelector('[name="size"]') || {}).value.trim();
+        const ask = (form.querySelector('[name="ask"]') || {}).value.trim();
+
+        if (!title || !size || !ask) {
+          if (errorBox) {
+            errorBox.textContent = 'Please complete all required fields before submitting your listing.';
+            errorBox.classList.remove('hide');
+          }
+          return;
+        }
+
+        const listing = createListing({
+          sellerEmail: getCurrentUser().email,
+          title,
+          sku,
+          size,
+          ask,
+        });
+
+        navigate('listing-success', { title: listing.title });
+      };
+    }
+  }
+
   // Setup account view
   if (view === 'account') {
     const btn = $('#account-logout');
