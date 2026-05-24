@@ -26,7 +26,7 @@ const featuredProductPanel = (s) => {
 
 
 // Browse state
-const browseState = { brands: new Set(), sizes: new Set(), maxPrice: 70000, sort: 'popular', search: '' };
+const browseState = { brands: new Set(), sizes: new Set(), womens: false, maxPrice: 70000, sort: 'popular', search: '' };
 
 
 

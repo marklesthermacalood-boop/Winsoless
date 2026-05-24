@@ -18,16 +18,17 @@ function renderFilters() {
     <input type="range" min="2825" max="70000" value="${browseState.maxPrice}" id="price-range" class="w-full"/>
     <div class="flex justify-between text-xs text-muted"><span>${fmt(2825)}</span><span class="font-semibold text-ink">Up to ${fmt(browseState.maxPrice)}</span><span>${fmt(70000)}</span></div>`;
 
-  const collections = ['Retro OG', 'Limited Drops', 'Collabs', 'Womens', 'Vintage']
-    .map((c) => `
-    <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox"/> ${c}</label>`)
-    .join('');
+  const womensFilter = `
+    <label class="flex items-center gap-2 text-sm cursor-pointer">
+      <input type="checkbox" data-filter="womens" ${browseState.womens ? 'checked' : ''} /> Womens
+    </label>
+    <div class="text-xs text-muted mt-3">Show womens sneakers and GS styles from the collection.</div>`;
 
   return (
     accordion('Brand', brandList) +
     accordion(`US Men's Size`, `<div class="grid grid-cols-4 gap-1.5">${sizeBtns}</div>`) +
     accordion('Price Range', price) +
-    accordion('Collections', collections, false)
+    accordion('Womens', womensFilter, false)
   );
 }
 
@@ -40,6 +41,10 @@ function applyFilters() {
       s.lowestAsk <= browseState.maxPrice &&
       (q === '' || [s.brand, s.model, s.colorway, s.sku].join(' ').toLowerCase().includes(q))
   );
+
+  if (browseState.womens) {
+    r = r.filter((s) => /women/i.test(`${s.model} ${s.colorway} ${s.image}`));
+  }
 
   if (browseState.sort === 'low') r.sort((a, b) => a.lowestAsk - b.lowestAsk);
   else if (browseState.sort === 'high') r.sort((a, b) => b.highestBid - a.highestBid);
@@ -92,6 +97,15 @@ function wireFilters(scope) {
   if (range) {
     range.oninput = () => {
       browseState.maxPrice = +range.value;
+      applyFilters();
+    };
+  }
+
+  // Womens filter
+  const womensCheck = $('input[data-filter="womens"]', scope);
+  if (womensCheck) {
+    womensCheck.onchange = () => {
+      browseState.womens = womensCheck.checked;
       applyFilters();
     };
   }

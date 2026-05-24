@@ -121,27 +121,6 @@ Works on all modern browsers (Chrome, Firefox, Safari, Edge) that support:
 - CSS Grid & Flexbox
 - Tailwind CSS 3+
 
-## Scope & Limitations
-
-Win Soles is a polished client-side prototype for a deadstock sneaker marketplace. It is built to showcase the buyer/seller journey, pricing data, brand discovery, and authentication messaging, but it is not yet a full ecommerce platform.
-
-### What the website can do now
-- Present a branded homepage with featured product highlights, trending sneaker collections, and popular brands
-- Render a live-style browse page with searchable products, brand filters, size filters, and price-based filtering
-- Show product detail pages with pricing, size selection, and sneaker authentication messaging
-- Provide dedicated informational pages for selling, about the company, and marketplace trust messaging
-- Offer responsive navigation with a mobile menu and mobile-friendly filter interactions
-- Simulate signup/login account flows and provide a simple seller onboarding concept
-- Support a mock listing submission flow in-browser and a “listing pending review” success page
-
-### What it does not do yet
-- It is entirely static and client-side: product data is hardcoded in `js/data.js` with no backend or live inventory updates
-- Authentication is mocked and does not connect to a secure backend user service
-- There is no real checkout, payment processing, order fulfillment, or shipping integration
-- The sell flow is simulated; it does not support actual marketplace transactions, seller dashboards, or order management
-- Search and filters work only against the current static dataset, with no pagination, server-side search, or scalable collection support
-- There is no persistent user profile, order history, saved favorites, or buyer/seller messaging
-
 ## Notes
 
 - All data is currently client-side (hardcoded). For production, replace with API calls.
