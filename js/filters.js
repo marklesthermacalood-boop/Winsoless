@@ -43,7 +43,7 @@ function applyFilters() {
   );
 
   if (browseState.womens) {
-    r = r.filter((s) => /women/i.test(`${s.model} ${s.colorway} ${s.image}`));
+    r = r.filter((s) => s.womens || /women/i.test(`${s.model} ${s.colorway} ${s.image}`));
   }
 
   if (browseState.sort === 'low') r.sort((a, b) => a.lowestAsk - b.lowestAsk);
