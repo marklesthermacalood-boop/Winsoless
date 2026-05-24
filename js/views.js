@@ -112,8 +112,7 @@ views.about = () => `
         </div>
       </div>
       <div class="space-y-4">
-        <div class="relative aspect-[4/3] rounded-2xl overflow-hidden border border-line">
-          <img src="posters/AboutUsPoster.jpg" alt="Win Soles poster" class="w-full h-full object-cover" />
+        <div class="relative aspect-[4/3] rounded-2xl overflow-hidden border border-line bg-soft bg-center bg-cover" style="background-image:url('posters/AboutUsPoster.jpg');">
           <div class="absolute inset-0 bg-black/30"></div>
           <div class="absolute left-6 bottom-6 text-white">
             <div class="text-5xl font-black leading-none">10K+</div>
