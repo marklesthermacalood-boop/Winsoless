@@ -9,18 +9,20 @@ const featuredProduct = () => SNEAKERS[featuredIndex] || SNEAKERS[0];
 const featuredProductPanel = (s) => {
   const up = s.changeAbs >= 0;
   return `
-    <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-red-200 via-amber-100 to-white border border-line overflow-hidden">
-      ${sneakerSVG(s.hue, s.image)}
-      <div class="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-md px-3 py-2 text-xs font-semibold border border-line">
-        <div class="text-muted text-[10px] uppercase">Lowest Ask</div>
-        <div class="text-base font-semibold">${fmt(s.lowestAsk)}</div>
+    <a href="#" data-nav="product" data-id="${s.id}" class="block group">
+      <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-red-200 via-amber-100 to-white border border-line overflow-hidden group-hover:shadow-lg transition-shadow">
+        ${sneakerSVG(s.hue, s.image)}
+        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-md px-3 py-2 text-xs font-semibold border border-line">
+          <div class="text-muted text-[10px] uppercase">Lowest Ask</div>
+          <div class="text-base font-semibold">${fmt(s.lowestAsk)}</div>
+        </div>
+        <div class="absolute bottom-4 right-4 bg-ink text-white rounded-md px-3 py-2 text-xs font-semibold">${up ? '▲' : '▼'} ${s.changePct}% Today</div>
       </div>
-      <div class="absolute bottom-4 right-4 bg-ink text-white rounded-md px-3 py-2 text-xs font-semibold">${up ? '▲' : '▼'} ${s.changePct}% Today</div>
-    </div>
-    <div class="mt-4 text-sm text-muted">
-      <div class="font-bold text-lg text-ink">${s.brand} ${s.model}</div>
-      <div class="mt-1">${s.colorway}</div>
-    </div>`;
+      <div class="mt-4 text-sm text-muted">
+        <div class="font-bold text-lg text-ink">${s.brand} ${s.model}</div>
+        <div class="mt-1">${s.colorway}</div>
+      </div>
+    </a>`;
 };
 
 
