@@ -15,10 +15,22 @@ function wireSearch() {
 
 // Wire product page size selection
 function wireProduct() {
+  const updatePricing = (size) => {
+    const s = SNEAKERS.find(x => x.id === productState.id) || SNEAKERS[0];
+    const { ask, bid } = getSizePrice(s, size);
+    const buyTag = $('#buy-now-tag');
+    const bidTag = $('#bid-tag');
+    const sizeLabel = $('#selected-size-label');
+    if (buyTag) buyTag.textContent = `${fmt(ask)} lowest ask`;
+    if (bidTag) bidTag.textContent = `${fmt(bid)} highest offer`;
+    if (sizeLabel) sizeLabel.textContent = `Selected size: ${size}`;
+  };
+
   $$('#size-grid button').forEach((b) => {
     if (b.disabled) return;
     b.onclick = () => {
       productState.size = +b.dataset.size;
+      updatePricing(productState.size);
       $$('#size-grid button').forEach((x) => {
         if (x.disabled) return;
         x.className = 'h-12 rounded-md border text-sm font-semibold flex flex-col items-center justify-center transition border-line hover:border-ink';
@@ -169,6 +181,74 @@ function navigate(view, params = {}) {
       logout();
       updateAuthUI();
       navigate('home');
+    };
+  }
+
+  // Setup bid view
+  if (view === 'bid') {
+    const form = $('#bid-form');
+    const amountInput = $('#bid-amount');
+    const noteInput = $('#bid-note');
+    const placeBtn = $('#place-bid-btn');
+    const errorBox = $('#bid-error');
+
+    const validateBid = () => {
+      if (!form || !amountInput || !placeBtn) return false;
+      const amount = Number(amountInput.value);
+      const currentHighest = Number(form.querySelector('input[name="currentHighest"]').value || 0);
+      const size = form.querySelector('input[name="size"]').value;
+      const isValid = amount > currentHighest && amount > 0 && Boolean(size);
+      placeBtn.disabled = !isValid;
+      placeBtn.classList.toggle('opacity-60', !isValid);
+      return isValid;
+    };
+
+    if (amountInput) amountInput.oninput = validateBid;
+    if (noteInput) noteInput.oninput = validateBid;
+    validateBid();
+
+    if (form) form.onsubmit = (e) => {
+      e.preventDefault();
+      if (!isLoggedIn()) {
+        alert('Please login or sign up to place a bid.');
+        navigate('login');
+        return;
+      }
+
+      if (!validateBid()) {
+        if (errorBox) {
+          errorBox.textContent = 'Enter a bid higher than the current highest offer and choose a size first.';
+          errorBox.classList.remove('hide');
+        }
+        return;
+      }
+
+      const productId = form.querySelector('input[name="productId"]').value;
+      const size = form.querySelector('input[name="size"]').value;
+      const currentHighest = Number(form.querySelector('input[name="currentHighest"]').value || 0);
+      const amount = Number(amountInput.value);
+      const note = (noteInput || {}).value.trim();
+      const s = SNEAKERS.find(x => x.id === productId) || SNEAKERS[0];
+      const ask = getSizePrice(s, size).ask;
+
+      const bid = createBid({
+        user: getCurrentUser(),
+        productId,
+        size,
+        amount,
+        note,
+        ask,
+      });
+
+      if (bid && bid.id) {
+        if (errorBox) errorBox.classList.add('hide');
+        navigate('bid-success', { id: bid.id });
+      } else {
+        if (errorBox) {
+          errorBox.textContent = 'Could not submit your bid. Please try again.';
+          errorBox.classList.remove('hide');
+        }
+      }
     };
   }
 

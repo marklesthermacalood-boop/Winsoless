@@ -19,6 +19,18 @@ const fmt = (n) =>
     maximumFractionDigits: 0,
   }).format(Number(n));
 
+// Returns size-specific ask/bid prices for a product
+const getSizePrice = (s, size) => {
+  const defaultSize = Number(size) || (Array.isArray(s.availableSizes) ? Number(s.availableSizes[0]) : 9);
+  const offset = defaultSize - 9;
+  const ask = Number(s.lowestAsk) + Math.round(offset * 282.5);
+  const bid = Number(s.highestBid) + Math.round(offset * 210);
+  return {
+    ask: Math.max(0, ask),
+    bid: Math.max(0, bid),
+  };
+};
+
 // Generate SVG or image display for sneaker
 const sneakerSVG = (hue, img) => {
   if (img) {

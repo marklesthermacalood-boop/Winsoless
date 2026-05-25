@@ -218,6 +218,8 @@ views.browse = () => `
 views.product = () => {
   const s = SNEAKERS.find(x => x.id === productState.id) || SNEAKERS[0];
   const up = s.changeAbs >= 0;
+  const selectedSize = productState.size || (s.availableSizes && s.availableSizes[0]);
+  const sizePrices = getSizePrice(s, selectedSize);
   return `
     <div class="mx-auto max-w-7xl w-full px-4 py-6">
       <nav class="text-xs text-muted flex items-center gap-1.5 mb-6">
@@ -253,26 +255,29 @@ views.product = () => {
               <button class="text-xs underline text-muted">Size Guide</button>
             </div>
             <div class="grid grid-cols-5 gap-2" id="size-grid">
-              ${sizeMatrix.map(sz => `
-                <button ${s.availableSizes && !s.availableSizes.includes(sz) ? 'disabled title="Out of stock"' : ''} data-size="${sz}" class="h-12 rounded-md border text-sm font-semibold flex flex-col items-center justify-center transition ${s.availableSizes && !s.availableSizes.includes(sz) ? 'border-line bg-soft text-muted opacity-50 cursor-not-allowed' : (productState.size === sz ? 'bg-ink text-white border-ink' : 'border-line hover:border-ink')}">
+              ${sizeMatrix.map(sz => {
+                const price = getSizePrice(s, sz).ask;
+                return `
+                <button ${s.availableSizes && !s.availableSizes.includes(sz) ? 'disabled title="Out of stock"' : ''} data-size="${sz}" class="h-12 rounded-md border text-sm font-semibold flex flex-col items-center justify-center transition ${s.availableSizes && !s.availableSizes.includes(sz) ? 'border-line bg-soft text-muted opacity-50 cursor-not-allowed' : (selectedSize == sz ? 'bg-ink text-white border-ink' : 'border-line hover:border-ink')}">
                   <span>${sz}</span>
-                  <span class="text-[9px] opacity-70">${fmt(s.lowestAsk + Math.round((sz - 9) * 282.5))}</span>
-                </button>`).join('')}
+                  <span class="text-[9px] opacity-70">${fmt(price)}</span>
+                </button>`;
+              }).join('')}
             </div>
           </div>
 
           <div class="mt-6 grid grid-cols-2 gap-3">
             <button data-nav="checkout" data-id="${s.id}" class="h-16 rounded-md bg-ask text-white font-bold flex flex-col items-center justify-center hover:opacity-95">
               <span class="text-base">Buy Now</span>
-              <span class="text-xs opacity-90">${fmt(s.lowestAsk)} lowest ask</span>
+              <span class="text-xs opacity-90" id="buy-now-tag">${fmt(sizePrices.ask)} lowest ask</span>
             </button>
             
-            <button class="h-16 rounded-md bg-bid text-white font-bold flex flex-col items-center justify-center hover:opacity-95">
+            <button data-nav="bid" data-id="${s.id}" class="h-16 rounded-md bg-bid text-white font-bold flex flex-col items-center justify-center hover:opacity-95">
               <span class="text-base">Place Bid</span>
-              <span class="text-xs opacity-90">${fmt(s.highestBid)} highest offer</span>
+              <span class="text-xs opacity-90" id="bid-tag">${fmt(sizePrices.bid)} highest offer</span>
             </button>
           </div>
-          <button class="mt-3 w-full h-12 rounded-md border border-ink font-semibold hover:bg-ink hover:text-white transition">Sell / Ask</button>
+          <div class="mt-3 text-sm text-muted" id="selected-size-label">Selected size: ${selectedSize}</div>
 
           <div class="mt-8 border-t border-line pt-6">
             <h2 class="font-bold mb-3">Product Details</h2>
@@ -358,6 +363,7 @@ views.account = () => {
   const initials = user.username.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
   const orders = typeof getOrdersForUser === 'function' ? getOrdersForUser(user.email) : [];
   const listings = typeof getUserListings === 'function' ? getUserListings(user.email) : [];
+  const bids = typeof getBidsForUser === 'function' ? getBidsForUser(user.email) : [];
   const orderHistory = orders.length > 0
     ? orders
         .slice()
@@ -393,6 +399,24 @@ views.account = () => {
           </div>`)
         .join('')
     : `<p class="text-sm text-muted mt-2">No listings yet — when you submit, they'll appear here.</p>`;
+  const bidHistory = bids.length > 0
+    ? bids
+        .slice()
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map((b) => `
+          <div class="p-4 border border-line rounded-md mb-3">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="font-semibold">Bid #${b.id}</div>
+                <div class="text-sm text-muted mt-1">${new Date(b.createdAt).toLocaleString()}</div>
+              </div>
+              <div class="text-sm font-semibold uppercase ${b.status === 'Pending' ? 'text-bid' : 'text-ink'}">${b.status}</div>
+            </div>
+            <div class="mt-3 text-sm text-muted">Size ${b.size || 'N/A'} • ${b.note || 'No message provided'}</div>
+            <div class="mt-2 text-sm">Bid: <strong>${typeof fmt === 'function' ? fmt(b.price) : b.price}</strong></div>
+          </div>`)
+        .join('')
+    : `<p class="text-sm text-muted mt-2">No bids yet — when you place one, it'll appear here.</p>`;
 
   return `
     <div class="mx-auto max-w-4xl px-4 py-12">
@@ -422,6 +446,10 @@ views.account = () => {
           <div class="mt-6">
             <h4 class="text-sm font-bold">Listing History</h4>
             <div class="mt-3">${listingHistory}</div>
+          </div>
+          <div class="mt-6">
+            <h4 class="text-sm font-bold">Bid History</h4>
+            <div class="mt-3">${bidHistory}</div>
           </div>
         </div>
       </div>
@@ -513,7 +541,9 @@ views['listing-success'] = (params = {}) => `
 views.checkout = (params = {}) => {
   const id = params.id || productState.id;
   const s = SNEAKERS.find(x => x.id === id) || SNEAKERS[0];
-  const price = s.lowestAsk;
+  const selectedSize = productState.size || (s.availableSizes && s.availableSizes[0]);
+  const sizePrices = getSizePrice(s, selectedSize);
+  const price = sizePrices.ask;
   return `
     <div class="mx-auto max-w-3xl px-4 py-12">
       <h2 class="text-2xl font-black">Checkout</h2>
@@ -549,6 +579,7 @@ views.checkout = (params = {}) => {
           <form id="checkout-form" class="mt-6">
             <input type="hidden" name="productId" value="${s.id}" />
             <input type="hidden" name="price" value="${price}" />
+            <input type="hidden" name="size" value="${selectedSize}" />
             <button id="place-order-btn" type="submit" disabled class="w-full h-12 rounded-md bg-ink text-white font-bold opacity-60">Place Order</button>
           </form>
         </div>
@@ -556,6 +587,65 @@ views.checkout = (params = {}) => {
     </div>`;
 };
 
+
+
+views.bid = (params = {}) => {
+  const id = params.id || productState.id;
+  const s = SNEAKERS.find(x => x.id === id) || SNEAKERS[0];
+  const selectedSize = productState.size || '';
+  const sizePrices = selectedSize ? getSizePrice(s, selectedSize) : getSizePrice(s, s.availableSizes && s.availableSizes[0]);
+  const sizeDisplay = selectedSize ? `Size ${selectedSize}` : 'No size selected yet';
+  const sizeWarning = selectedSize ? '' : '<div class="mt-4 text-sm text-red-600">Please select a size on the product page before placing your bid.</div>';
+  return `
+    <div class="mx-auto max-w-3xl px-4 py-12">
+      <h2 class="text-2xl font-black">Place a Bid</h2>
+      <p class="text-sm text-muted mt-1">Submit an offer for <strong>${s.brand} ${s.model} — ${s.colorway}</strong>.</p>
+      <div class="mt-6 grid md:grid-cols-2 gap-6">
+        <div class="p-4 border border-line rounded-md">
+          <div class="text-sm text-muted">Lowest ask for this size</div>
+          <div class="mt-3 text-2xl font-black">${fmt(sizePrices.ask)}</div>
+          <div class="text-sm text-muted mt-4">Highest offer for this size</div>
+          <div class="mt-3 text-2xl font-black">${fmt(sizePrices.bid)}</div>
+          <div class="mt-3 text-sm text-muted">${sizeDisplay}</div>
+          ${sizeWarning}
+          <div class="mt-6 text-sm text-muted">Enter the amount you want to bid and add any details for the seller.</div>
+        </div>
+        <div class="p-4 border border-line rounded-md">
+          <form id="bid-form" class="space-y-4">
+            <input type="hidden" name="productId" value="${s.id}" />
+            <input type="hidden" name="currentHighest" value="${sizePrices.bid}" />
+            <input type="hidden" name="size" value="${selectedSize}" />
+            <label class="block">
+              <div class="text-sm font-semibold text-ink">Bid Amount</div>
+              <input id="bid-amount" type="number" min="1" placeholder="Enter your offer" class="mt-2 w-full h-12 rounded-md border border-line px-3" />
+            </label>
+            <label class="block">
+              <div class="text-sm font-semibold text-ink">Offer Details</div>
+              <textarea id="bid-note" rows="4" placeholder="Why this pair is a great fit, delivery preferences, or condition notes" class="mt-2 w-full rounded-md border border-line px-3 py-3"></textarea>
+            </label>
+            <div id="bid-error" class="hide text-sm text-red-600"></div>
+            <button id="place-bid-btn" type="submit" disabled class="w-full h-12 rounded-md bg-bid text-white font-bold opacity-60">Confirm Bid</button>
+          </form>
+        </div>
+      </div>
+    </div>`;
+};
+
+
+views['bid-success'] = (params = {}) => {
+  const id = params.id;
+  const bid = (typeof getBid === 'function' && id) ? getBid(id) : null;
+  return `
+    <div class="mx-auto max-w-3xl px-4 py-12 text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-bid text-white text-2xl font-bold mx-auto">✓</div>
+      <h2 class="text-2xl font-black mt-4">${bid && bid.status === 'Won' ? 'Congratulations!' : 'Bid Submitted'}</h2>
+      <p class="text-sm text-muted mt-2">${bid ? (bid.status === 'Won' ? `Your bid for <strong>${fmt(bid.price)}</strong> met the lowest ask and the pair is yours.` : `Your bid for <strong>${fmt(bid.price)}</strong> is pending confirmation.`) : 'Your bid is pending confirmation.'}</p>
+      <div class="mt-6">
+        <a href="#" data-nav="home" class="inline-flex h-11 items-center justify-center px-6 rounded-md border border-ink font-semibold">Continue Shopping</a>
+        <a href="#" data-nav="account" class="inline-flex h-11 items-center justify-center px-6 rounded-md bg-ink text-white font-semibold ml-3">View Account</a>
+      </div>
+    </div>`;
+};
 
 
 // Order success view
