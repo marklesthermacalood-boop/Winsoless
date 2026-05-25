@@ -356,6 +356,44 @@ views.account = () => {
   }
 
   const initials = user.username.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+  const orders = typeof getOrdersForUser === 'function' ? getOrdersForUser(user.email) : [];
+  const listings = typeof getUserListings === 'function' ? getUserListings(user.email) : [];
+  const orderHistory = orders.length > 0
+    ? orders
+        .slice()
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map((o) => `
+          <div class="p-4 border border-line rounded-md mb-3">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div>
+                <div class="font-semibold">Order #${o.id}</div>
+                <div class="text-sm text-muted mt-1">${new Date(o.createdAt).toLocaleString()}</div>
+              </div>
+              <div class="text-sm font-semibold uppercase ${o.status === 'Pending' ? 'text-bid' : 'text-ink'}">${o.status}</div>
+            </div>
+            <div class="mt-3 text-sm text-muted">${o.name || 'No name provided'} • ${o.paymentMethod || 'Payment info unavailable'}</div>
+            <div class="mt-2 text-sm">Total: <strong>${typeof fmt === 'function' ? fmt(o.price) : o.price}</strong></div>
+          </div>`)
+        .join('')
+    : `<p class="text-sm text-muted mt-2">No orders yet — when you purchase, they'll appear here.</p>`;
+  const listingHistory = listings.length > 0
+    ? listings
+        .slice()
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map((l) => `
+          <div class="p-4 border border-line rounded-md mb-3">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="font-semibold">${l.title}</div>
+                <div class="text-sm text-muted mt-1">Size ${l.size}${l.sku ? ` • ${l.sku}` : ''}</div>
+              </div>
+              <div class="text-sm font-semibold uppercase ${l.status === 'Pending' ? 'text-bid' : 'text-ink'}">${l.status}</div>
+            </div>
+            <div class="mt-3 text-sm">Ask: <strong>${typeof fmt === 'function' ? fmt(l.ask) : l.ask}</strong></div>
+          </div>`)
+        .join('')
+    : `<p class="text-sm text-muted mt-2">No listings yet — when you submit, they'll appear here.</p>`;
+
   return `
     <div class="mx-auto max-w-4xl px-4 py-12">
       <div class="grid md:grid-cols-3 gap-8 items-start">
@@ -379,7 +417,11 @@ views.account = () => {
           </div>
           <div class="mt-6">
             <h4 class="text-sm font-bold">Order History</h4>
-            <p class="text-sm text-muted mt-2">No orders yet — when you purchase, they'll appear here.</p>
+            <div class="mt-3">${orderHistory}</div>
+          </div>
+          <div class="mt-6">
+            <h4 class="text-sm font-bold">Listing History</h4>
+            <div class="mt-3">${listingHistory}</div>
           </div>
         </div>
       </div>
@@ -523,8 +565,8 @@ views['order-success'] = (params = {}) => {
   return `
     <div class="mx-auto max-w-3xl px-4 py-12 text-center">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-ask text-white text-2xl font-bold mx-auto">✓</div>
-      <h2 class="text-2xl font-black mt-4">Order Placed</h2>
-      <p class="text-sm text-muted mt-2">${order ? `Your order <strong>#${order.id}</strong> has been placed successfully.` : 'Your order has been placed successfully.'}</p>
+      <h2 class="text-2xl font-black mt-4">Order Pending</h2>
+      <p class="text-sm text-muted mt-2">${order ? `Your order <strong>#${order.id}</strong> is pending confirmation.` : 'Your order is pending confirmation.'}</p>
       <div class="mt-6">
         <a href="#" data-nav="home" class="inline-flex h-11 items-center justify-center px-6 rounded-md border border-ink font-semibold">Continue Shopping</a>
         <a href="#" data-nav="account" class="inline-flex h-11 items-center justify-center px-6 rounded-md bg-ink text-white font-semibold ml-3">View Account</a>

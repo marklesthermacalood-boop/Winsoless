@@ -23,7 +23,7 @@ function createOrder({ user, productId, size, price, paymentMethod, name, addres
     paymentMethod,
     name: name || null,
     address: address || null,
-    status: 'placed',
+    status: 'Pending',
     createdAt: new Date().toISOString(),
   };
   orders.unshift(order);
