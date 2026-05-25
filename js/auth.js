@@ -12,7 +12,7 @@ const USER_DATABASE = {
   },
   'jeff@google.com': {
     email: 'jeff@google.com',
-    username: 'Jeffrey David',
+    username: 'Jefferson David',
     password: 'jeff123',
   },
   'lance@mail.com': {

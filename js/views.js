@@ -55,7 +55,7 @@ views.home = () => `
         <div class="mt-8 flex flex-wrap gap-3">
         </div>
         <div class="mt-3 grid grid-cols-3 gap-6 max-w-md">
-          ${[['10K+', 'Listings'], ['100%', 'Auth Rate'], ['48hr', 'Shipping']].map(([n, l]) => `<div><div class="text-2xl font-black">${n}</div><div class="text-[11px] uppercase tracking-wider text-muted">${l}</div></div>`).join('')}
+          ${[['10K+', 'Listings'], ['98%', 'Auth Rate'], ['48hr', 'Shipping']].map(([n, l]) => `<div><div class="text-2xl font-black">${n}</div><div class="text-[11px] uppercase tracking-wider text-muted">${l}</div></div>`).join('')}
         </div>
       </div>
       <div id="featured-panel">
