@@ -153,7 +153,7 @@ views.about = () => `
         </div>
         <div class="border border-line rounded-md p-4 text-center">
           <div class="font-bold">Jefferson David</div>
-          <div class="text-xs text-muted">Shareholder</div>
+          <div class="text-xs text-muted">Co-Founder</div>
         </div>
         <div class="border border-line rounded-md p-4 text-center">
           <div class="font-bold">Lance Llaguno</div>
