@@ -22,13 +22,16 @@ function renderFilters() {
     <label class="flex items-center gap-2 text-sm cursor-pointer">
       <input type="checkbox" data-filter="womens" ${browseState.womens ? 'checked' : ''} /> Womens
     </label>
-    <div class="text-xs text-muted mt-3">Show womens sneakers and GS styles from the collection.</div>`;
+    <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
+      <input type="checkbox" data-filter="mens" ${browseState.mens ? 'checked' : ''} /> Mens
+    </label>
+    <div class="text-xs text-muted mt-3">Show only womens or mens sneakers from the collection. Leaving both unchecked will show all.</div>`;
 
   return (
     accordion('Brand', brandList) +
-    accordion(`US Men's Size`, `<div class="grid grid-cols-4 gap-1.5">${sizeBtns}</div>`) +
+    accordion(`US Sizes`, `<div class="grid grid-cols-4 gap-1.5">${sizeBtns}</div>`) +
     accordion('Price Range', price) +
-    accordion('Womens', womensFilter, false)
+    accordion('Gender', womensFilter, false)
   );
 }
 
@@ -37,13 +40,22 @@ function applyFilters() {
   const q = (browseState.search || '').toLowerCase().trim();
   let r = SNEAKERS.filter(
     (s) =>
+      Array.isArray(s.availableSizes) && s.availableSizes.length > 0 &&
       (browseState.brands.size === 0 || browseState.brands.has(s.brand)) &&
       s.lowestAsk <= browseState.maxPrice &&
       (q === '' || [s.brand, s.model, s.colorway, s.sku].join(' ').toLowerCase().includes(q))
   );
 
-  if (browseState.womens) {
-    r = r.filter((s) => s.womens || /women/i.test(`${s.model} ${s.colorway} ${s.image}`));
+  if (browseState.sizes.size > 0) {
+    r = r.filter((s) => Array.from(browseState.sizes).some((sz) => s.availableSizes.includes(sz)));
+  }
+
+  if (browseState.womens || browseState.mens) {
+    if (browseState.womens && !browseState.mens) {
+      r = r.filter((s) => s.womens || /women/i.test(`${s.model} ${s.colorway} ${s.image}`));
+    } else if (browseState.mens && !browseState.womens) {
+      r = r.filter((s) => !s.womens && !/women/i.test(`${s.model} ${s.colorway} ${s.image}`));
+    }
   }
 
   if (browseState.sort === 'low') r.sort((a, b) => a.lowestAsk - b.lowestAsk);
@@ -89,6 +101,7 @@ function wireFilters(scope) {
           browseState.sizes.add(sz);
           b.classList.add('bg-ink', 'text-white', 'border-ink');
         }
+        applyFilters();
       })
   );
 
@@ -106,6 +119,14 @@ function wireFilters(scope) {
   if (womensCheck) {
     womensCheck.onchange = () => {
       browseState.womens = womensCheck.checked;
+      applyFilters();
+    };
+  }
+
+  const mensCheck = $('input[data-filter="mens"]', scope);
+  if (mensCheck) {
+    mensCheck.onchange = () => {
+      browseState.mens = mensCheck.checked;
       applyFilters();
     };
   }

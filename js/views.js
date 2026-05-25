@@ -28,7 +28,7 @@ const featuredProductPanel = (s) => {
 
 
 // Browse state
-const browseState = { brands: new Set(), sizes: new Set(), womens: false, maxPrice: 70000, sort: 'popular', search: '' };
+const browseState = { brands: new Set(), sizes: new Set(), womens: false, mens: false, maxPrice: 70000, sort: 'popular', search: '' };
 
 
 
@@ -253,7 +253,7 @@ views.product = () => {
 
           <div class="mt-6">
             <div class="flex items-center justify-between mb-3">
-              <div class="text-sm font-semibold">Select Size <span class="text-muted font-normal">— US Men's</span></div>
+              <div class="text-sm font-semibold">Select Size <span class="text-muted font-normal">— US</span></div>
               <button class="text-xs underline text-muted">Size Guide</button>
             </div>
             <div class="grid grid-cols-5 gap-2" id="size-grid">
